@@ -7,6 +7,8 @@ This repo consist only the service files, and the CI part of the service as well
 This is assuming we utilize flux and ALB Controller in AWS. Flux will be responsible as the GitOps operator to deploy the whole thing, and ALB controller will be responsible to create the load balancer, and the load balancer will be resposnsible redirecting the traffic to each respective service
 
 Here is a simple image describing it.
+![image](https://github.com/farissatyaw/kubernetes-cicd/assets/64099646/4a1e9c3f-0b60-4f6d-b547-0d575d69bf30)
+
 
 ## Explanation on CI
 
