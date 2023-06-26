@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  DOCKER_HUB_USERNAME: farissatyaw
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      python: ${{ steps.filter.outputs.python }}
+      node: ${{ steps.filter.outputs.node }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            python:
+              - 'sample-python-app/app/**'
+            node:
+              - 'sample-node-app/app/**'
+
+  build-and-push-python:
+    needs: changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.changes.outputs.python == 'true' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set Docker Hub Access Token for Job
+        run: echo ${{ secrets.DOCKER_HUB_ACCESS_KEY }} | docker login --username ${{ env.DOCKER_HUB_USERNAME }} --password-stdin
+
+      - name: Build and push Docker image for Python App
+        uses: docker/build-push-action@v2
+        with:
+          context: sample-python-app/app
+          push: true
+          tags: ${{ env.DOCKER_HUB_USERNAME }}/sample-python-app:${{ github.sha }}
+
+  build-and-push-node:
+    needs: changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.changes.outputs.node == 'true' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set Docker Hub Access Token for Job
+        run: echo ${{ secrets.DOCKER_HUB_ACCESS_KEY }} | docker login --username ${{ env.DOCKER_HUB_USERNAME }} --password-stdin
+
+      - name: Build and push Docker image for Job Node App
+        uses: docker/build-push-action@v2
+        with:
+          context: sample-node-app/app
+          push: true
+          tags: ${{ env.DOCKER_HUB_USERNAME }}/sample-node-app:${{ github.sha }}
